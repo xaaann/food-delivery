@@ -1,0 +1,150 @@
+/* --- GENERAL --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+h1, h2, h3 {
+    margin: 0;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* --- CONTAINERS --- */
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* --- BUTTONS --- */
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    background-color: #ff5e57;
+    color: white;
+    font-weight: bold;
+    transition: 0.3s;
+}
+button:hover { background-color: #ff3b30; }
+
+/* --- INPUTS --- */
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+input:focus { border-color: #ff5e57; outline: none; }
+
+/* --- NAVBAR / SIDEBAR --- */
+.dashboard { display: flex; min-height: 100vh; }
+.sidebar {
+    width: 220px;
+    background-color: #ff5e57;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.sidebar h2 { font-size: 22px; text-align: center; margin-bottom: 30px; }
+.sidebar a {
+    padding: 12px;
+    margin: 5px 0;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: 0.3s;
+    color: white;
+}
+.sidebar a:hover { background-color: #ff3b30; }
+
+/* --- FOOD / ORDER CARDS --- */
+.food-card, .order-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+.food-card:last-child, .order-card:last-child { border-bottom: none; }
+
+/* --- ORDER STATUS --- */
+.status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+.pending { background-color: #f39c12; }
+.confirmed { background-color: #3498db; }
+.on_the_way { background-color: #9b59b6; }
+.delivered { background-color: #2ecc71; }
+
+/* --- ORDER PROGRESS --- */
+.progress-container { display: flex; justify-content: space-between; margin: 30px 0; position: relative; }
+.progress-step { text-align: center; width: 25%; position: relative; z-index: 1; }
+.progress-step::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    background: #ddd;
+    z-index: 2;
+}
+.progress-step::after {
+    content: '';
+    position: absolute;
+    top: 21px;
+    left: 50%;
+    width: 100%;
+    height: 4px;
+    background: #ddd;
+    z-index: 1;
+}
+.progress-step:last-child::after { display: none; }
+.progress-step.active::before { background: #ff5e57; }
+.progress-step.active::after { background: #ff5e57; }
+.progress-label { margin-top: 30px; font-weight: bold; }
+
+/* --- CHAT --- */
+#chat-box {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    background: #f2f2f2;
+    margin-bottom: 10px;
+}
+#chat-box p { padding: 8px 12px; border-radius: 12px; margin: 5px 0; max-width: 70%; }
+.user-msg { background: #ff5e57; color: white; margin-left: auto; }
+.rider-msg { background: #4caf50; color: white; margin-right: auto; }
+#msg { width: calc(100% - 100px); padding: 10px; border-radius: 6px; border: 1px solid #ddd; }
+.chat-controls { display: flex; gap: 10px; }
+
+/* --- RESPONSIVE --- */
+@media(max-width: 768px) {
+    .dashboard { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
+    .sidebar a { flex: 1; text-align: center; }
+}
