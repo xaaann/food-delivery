@@ -1,17 +1,23 @@
-# Use official PHP 8.2 with Apache
-FROM php:8.2-apache
+FROM php:8.1-apache
 
-# Enable mysqli and pdo_mysql extensions (needed for your db.php)
+# Install MySQL extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Copy your project into the web root
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Copy application files
 COPY . /var/www/html/
 
-# Give Apache ownership
-RUN chown -R www-data:www-data /var/www/html/
+# Set working directory
+WORKDIR /var/www/html
 
-# Expose port 80
-EXPOSE 80
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
 
-# Start Apache in foreground
+EXPOSE 8080
+
+# Update Apache to listen on PORT from Railway
+RUN sed -i 's/80/8080/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+
 CMD ["apache2-foreground"]
