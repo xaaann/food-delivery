@@ -10,43 +10,55 @@ class Database {
     public $conn;
 
     public function __construct() {
-        // Check if Railway environment variables exist
-        if (getenv('MYSQLHOST')) {
-            // Railway deployment
-            $this->host = getenv('MYSQLHOST');
-            $this->port = getenv('MYSQLPORT') ?: '3306';
-            $this->db_name = getenv('MYSQLDATABASE');
-            $this->username = getenv('MYSQLUSER');
-            $this->password = getenv('MYSQLPASSWORD');
-        } elseif ($_SERVER['SERVER_NAME'] === 'localhost') {
-            // Local XAMPP
+        // Check if Render PostgreSQL environment variables exist
+        if (getenv('DATABASE_URL')) {
+            // Render deployment with PostgreSQL
+            $db_url = parse_url(getenv('DATABASE_URL'));
+            $this->host = $db_url['host'];
+            $this->port = $db_url['port'];
+            $this->db_name = ltrim($db_url['path'], '/');
+            $this->username = $db_url['user'];
+            $this->password = $db_url['pass'];
+        } elseif ($_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1') {
+            // Local development - still using MySQL
             $this->host = "localhost";
             $this->port = "3306";
             $this->db_name = "food_delivery";
             $this->username = "root";
             $this->password = "";
         } else {
-            // InfinityFree (fallback)
-            $this->host = "sql111.infinityfree.com";
+            // Other hosting
+            $this->host = "localhost";
             $this->port = "3306";
-            $this->db_name = "if0_40933697_xanmysql";
-            $this->username = "if0_40933697";
-            $this->password = "ufjijIXjx7g2fQ";
+            $this->db_name = "food_delivery";
+            $this->username = "root";
+            $this->password = "";
         }
     }
 
     public function getConnection() {
         $this->conn = null;
         try {
-            $this->conn = new PDO(
-                "mysql:host={$this->host};port={$this->port};dbname={$this->db_name}",
-                $this->username,
-                $this->password
-            );
+            // Check if using PostgreSQL (Render) or MySQL (local)
+            if (getenv('DATABASE_URL')) {
+                // PostgreSQL connection
+                $this->conn = new PDO(
+                    "pgsql:host={$this->host};port={$this->port};dbname={$this->db_name}",
+                    $this->username,
+                    $this->password
+                );
+            } else {
+                // MySQL connection (local)
+                $this->conn = new PDO(
+                    "mysql:host={$this->host};port={$this->port};dbname={$this->db_name}",
+                    $this->username,
+                    $this->password
+                );
+            }
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $e) {
             error_log("DB Connection Error: " . $e->getMessage());
-            echo "Connection Error: Could not connect to the database.";
+            echo "Connection Error: Could not connect to the database. " . $e->getMessage();
         }
         return $this->conn;
     }
@@ -56,14 +68,14 @@ class Database {
 // BASE URL FOR THE PROJECT
 // ----------------------
 // Detect environment and set BASE_URL accordingly
-if (getenv('RAILWAY_ENVIRONMENT')) {
-    // Railway deployment - no subfolder needed
+if (getenv('RENDER')) {
+    // Render deployment - no subfolder needed
     define('BASE_URL', '/');
-} elseif ($_SERVER['SERVER_NAME'] === 'localhost') {
+} elseif ($_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1') {
     // Local XAMPP - with subfolder
     define('BASE_URL', '/food_delivery/');
 } else {
-    // Other hosting (InfinityFree, etc.)
+    // Other hosting
     define('BASE_URL', '/');
 }
 
@@ -86,4 +98,4 @@ function redirect($page) {
     header("Location: " . FULL_URL . $page);
     exit();
 }
-?>
+?>      
