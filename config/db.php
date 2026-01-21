@@ -1,6 +1,7 @@
 <?php
-session_start();
-
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 class Database {
     private $host;
     private $db_name;
