@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
 class Database {
     private $host;
     private $db_name;
@@ -14,21 +15,26 @@ class Database {
         // Check if Render PostgreSQL environment variables exist
         if (getenv('DATABASE_URL')) {
             // Render deployment with PostgreSQL
-            $db_url = parse_url(getenv('DATABASE_URL'));
-            $this->host = $db_url['host'];
-            $this->port = $db_url['port'];
-            $this->db_name = ltrim($db_url['path'], '/');
-            $this->username = $db_url['user'];
-            $this->password = $db_url['pass'];
+            $db_url = getenv('DATABASE_URL');
+            
+            // Parse the DATABASE_URL properly
+            $parsed = parse_url($db_url);
+            
+            $this->host = $parsed['host'] ?? 'localhost';
+            $this->port = $parsed['port'] ?? 5432;
+            $this->username = $parsed['user'] ?? '';
+            $this->password = $parsed['pass'] ?? '';
+            $this->db_name = ltrim($parsed['path'] ?? '', '/');
+            
         } elseif ($_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1') {
-            // Local development - still using MySQL
+            // Local development - MySQL
             $this->host = "localhost";
             $this->port = "3306";
             $this->db_name = "food_delivery";
             $this->username = "root";
             $this->password = "";
         } else {
-            // Other hosting
+            // Other hosting - MySQL
             $this->host = "localhost";
             $this->port = "3306";
             $this->db_name = "food_delivery";
@@ -43,10 +49,15 @@ class Database {
             // Check if using PostgreSQL (Render) or MySQL (local)
             if (getenv('DATABASE_URL')) {
                 // PostgreSQL connection
+                $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->db_name};sslmode=require";
                 $this->conn = new PDO(
-                    "pgsql:host={$this->host};port={$this->port};dbname={$this->db_name}",
+                    $dsn,
                     $this->username,
-                    $this->password
+                    $this->password,
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_EMULATE_PREPARES => false
+                    ]
                 );
             } else {
                 // MySQL connection (local)
@@ -55,11 +66,11 @@ class Database {
                     $this->username,
                     $this->password
                 );
+                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             }
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $e) {
             error_log("DB Connection Error: " . $e->getMessage());
-            echo "Connection Error: Could not connect to the database. " . $e->getMessage();
+            die("Connection Error: Could not connect to the database. Please contact support.");
         }
         return $this->conn;
     }
@@ -69,7 +80,7 @@ class Database {
 // BASE URL FOR THE PROJECT
 // ----------------------
 // Detect environment and set BASE_URL accordingly
-if (getenv('RENDER')) {
+if (getenv('RENDER') || getenv('DATABASE_URL')) {
     // Render deployment - no subfolder needed
     define('BASE_URL', '/');
 } elseif ($_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1') {
@@ -99,4 +110,4 @@ function redirect($page) {
     header("Location: " . FULL_URL . $page);
     exit();
 }
-?>      
+?>
