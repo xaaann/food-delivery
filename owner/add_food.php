@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = $_POST['description'] ?? '';
     $price = floatval($_POST['price'] ?? 0);
     $stock = intval($_POST['stock'] ?? 0);
-    $available = isset($_POST['available']) ? 1 : 0;
+    $available = isset($_POST['available']);
 
     // Handle image upload
     $image_path = '../assets/default-food.jpg'; // general default image

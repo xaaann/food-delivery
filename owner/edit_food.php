@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = $_POST['description'] ?? '';
     $price = floatval($_POST['price'] ?? 0);
     $stock = intval($_POST['stock'] ?? 0);
-    $available = isset($_POST['available'])?1:0;
+    $available = isset($_POST['available']) ? true : false;
 
     // Handle image upload if exists
     $image_path = $item['image'];

@@ -17,7 +17,7 @@ $conn = $db->getConnection();
 $stmt = $conn->prepare("SELECT f.*, u.name as owner_name 
                         FROM food_items f 
                         JOIN users u ON f.owner_id = u.id 
-                        WHERE f.available = 1 AND f.stock > 0 
+                        WHERE f.available = TRUE AND f.stock > 0 
                         ORDER BY f.created_at DESC");
 $stmt->execute();
 $food_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
